@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base Extensions</title>
+</head>
+
+<body>
+  <main class="main p-3 pt-4">
+
+    <!-- 加载中提示 -->
+    <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center;">
+      <div class="text-center" >
+
+        <div id="loadingIcon" class="d-flex justify-content-center mb-3" >
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+ 
+        <!-- 统一进度信息 -->
+        <div id="loadingStatus" class="text-light mb-3"></div>
+        
+      </div>
+    </div>
+
+    <!-- 加载完成提示 -->
+    <div id="loadEndOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div class="text-center" >
+          <!-- 统一进度信息 -->
+          <div id="loadEndStatus" class="text-light mb-3"></div>
+  
+          <!-- 确认按钮 -->
+          <button id="btnConfirm" class="btn btn-success" >确  认</button>
+        </div>
+    </div>
+    
+    <div class="mb-3" >
+      <h4 class="mb-3" style="font-weight: bold;">解析.strings文件</h4>
+      <form>
+
+        <div class="mb-3" >
+          <label for="fieldLangSelect" class="form-label">输入语言类型：</label>
+          
+          <input type="text" class="form-control" placeholder="en/zh" id="inputLang" >
+
+          <br />
+
+          <input type="file" class="form-control" id="inputFile" >
+        </div>
+        
+        <div class="input-group">
+          <button class="btn btn-outline-primary" type="button" id="btnAnalyzeFile" disabled>解析文件</button>
+        </div>
+        
+      </form>
+    </div>
+
+    <br />
+    <br />
+
+    <div class="mb-3" >
+      <h4 class="mb-3" style="font-weight: bold;">导出.strings文件</h4>
+      <form>
+
+        <div class="mb-3" >
+          <label for="tableSelect" class="form-label">选择数据表</label>
+          <select id='tableSelect' class="form-select"></select>
+        </div>
+
+        <div class="mb-3" >
+          <label for="fieldLangSelect" class="form-label">选择语言类型</label>
+          <select id='fieldLangSelect' class="form-select"></select>
+        </div>
+        
+        <div class="input-group">
+          <button class="btn btn-outline-primary" type="button" id="exportFile" disabled>导出文件</button>
+        </div>
+
+      </form>
+    </div>
+
+  </main>
+  <script type="module" src="/src/index.ts"></script>
+</body>
+
+</html>
