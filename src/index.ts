@@ -136,14 +136,14 @@ $(async function() {
 
       currProgress = 0;
       totalProgress = recordList.recordIdList.length;
-      updateLoadingProgress('正在加载数据表：', currProgress, totalProgress);
+      updateLoadingProgress($.t('loading_table'), currProgress, totalProgress);
 
       for (const record of recordList) {
         const keyCell = await record.getCellByField(keyField);
         const keyVal = await keyCell.getValue();
 
         currProgress++;
-        updateLoadingProgress('正在加载数据表：', currProgress, totalProgress);
+        updateLoadingProgress($.t('loading_table'), currProgress, totalProgress);
 
         // const langCell = await record.getCellByField(langField);
         // const langVal = await langCell.getValue();
@@ -173,7 +173,7 @@ $(async function() {
 
         currProgress = 0;
         totalProgress = keyValuePairs.length;
-        updateLoadingProgress('正在解析文件至数据表：', currProgress, totalProgress);
+        updateLoadingProgress($.t('analyze_to_table'), currProgress, totalProgress);
 
         if (keyValuePairs) {
           for (const pair of keyValuePairs) {
@@ -183,7 +183,7 @@ $(async function() {
               const value = matches[2];
 
               currProgress++;
-              updateLoadingProgress('正在解析文件至数据表：', currProgress, totalProgress);
+              updateLoadingProgress($.t('analyze_to_table'), currProgress, totalProgress);
 
               if (recordMap.has(key)) {
                 console.log('setCellValue:', langField.id, recordMap.get(key), value);
@@ -217,7 +217,7 @@ $(async function() {
         }
 
         // 加载完成
-        showConfirmation('解析文件已完成：', currProgress, totalProgress);
+        showConfirmation($.t('analyze_to_table_finish'), currProgress, totalProgress);
 
         updateTableList();
       };
@@ -340,7 +340,7 @@ $(async function() {
 
     currProgress = 0;
     totalProgress = recordList.recordIdList.length;
-    updateLoadingProgress('正在加载数据表：', currProgress, totalProgress);
+    updateLoadingProgress($.t('loading_table'), currProgress, totalProgress);
 
     for (const record of recordList) {
       const keyCell = await record.getCellByField(keyField);
@@ -350,7 +350,7 @@ $(async function() {
       const langVal = await langCell.getValue();
       
       currProgress++;
-      updateLoadingProgress('正在加载数据表：', currProgress, totalProgress);
+      updateLoadingProgress($.t('loading_table'), currProgress, totalProgress);
 
       // console.log("key lang:", keyVal, langVal);
 
@@ -380,7 +380,7 @@ $(async function() {
 
     a.href = fileURL;
     a.download = exportTableName;
-    a.innerText = "下载文件：" + exportTableName + " : " + exportFieldName;
+    a.innerText = $.t('download_file') + exportTableName + " : " + exportFieldName;
 
     // 设置点击事件处理器
     // a.addEventListener('click', () => {
@@ -392,20 +392,8 @@ $(async function() {
     // });
     
     // 加载完成
-    showConfirmation('解析文件已完成：', currProgress, totalProgress);
+    showConfirmation($.t('export_file_finish'), currProgress, totalProgress);
   });
-
-  
-  $('#addRecord').on('click', async function() {
-    const tableId = $('#tableSelect').val();
-    if (tableId) {
-      const table = await bitable.base.getTableById(tableId as string);
-      table.addRecord({
-        fields: {},
-      });
-    }
-  });
-
 
 });
 

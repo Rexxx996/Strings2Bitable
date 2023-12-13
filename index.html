@@ -32,7 +32,7 @@
         <div class="text-center" >
 
           <!-- 确认按钮 -->
-          <button id="btnConfirm" class="btn btn-success mb-3" >确  认</button>
+          <button id="btnConfirm" class="btn btn-success mb-3" data-i18n="confirm">确  认</button>
 
           <!-- 统一进度信息 -->
           <div id="loadEndStatus" class="text-light"></div>
@@ -41,11 +41,11 @@
     </div>
     
     <div class="mb-3" >
-      <h4 class="mb-3" style="font-weight: bold;">解析.strings文件</h4>
+      <h4 class="mb-3" style="font-weight: bold;" data-i18n="analyze_file_title">解析.strings文件</h4>
       <form>
 
         <div class="mb-3" >
-          <label for="inputLang" class="form-label">输入语言类型</label>
+          <label for="inputLang" class="form-label" data-i18n="input_lang_type">输入语言类型</label>
           
           <input type="text" class="form-control" placeholder="en/zh" id="inputLang" >
 
@@ -55,7 +55,7 @@
         </div>
         
         <div class="input-group">
-          <button class="btn btn-outline-primary" type="button" id="btnAnalyzeFile" disabled>解析文件</button>
+          <button class="btn btn-outline-primary" type="button" id="btnAnalyzeFile" data-i18n="analyze_file" disabled >解析文件</button>
         </div>
         
       </form>
@@ -65,21 +65,21 @@
     <br />
 
     <div class="mb-3" >
-      <h4 class="mb-3" style="font-weight: bold;">导出.strings文件</h4>
+      <h4 class="mb-3" style="font-weight: bold;" data-i18n="export_file_title">导出.strings文件</h4>
       <form>
 
         <div class="mb-3" >
-          <label for="tableSelect" class="form-label">选择数据表</label>
+          <label for="tableSelect" class="form-label" data-i18n="select_table">选择数据表</label>
           <select id='tableSelect' class="form-select"></select>
         </div>
 
         <div class="mb-3" >
-          <label for="fieldLangSelect" class="form-label">选择语言类型</label>
+          <label for="fieldLangSelect" class="form-label" data-i18n="select_lang_type">选择语言类型</label>
           <select id='fieldLangSelect' class="form-select"></select>
         </div>
         
         <div class="input-group">
-          <button class="btn btn-outline-primary  mb-3" type="button" id="btnExportFile" disabled>导出文件</button>
+          <button class="btn btn-outline-primary  mb-3" type="button" id="btnExportFile" data-i18n="export_file" disabled>导出文件</button>
         </div>
 
         <a id="downloadFile" href="#" class="fst-italic text-decoration-underline" download></a>

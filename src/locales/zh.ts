@@ -1,4 +1,15 @@
 export default {
-  title: '这是中文标题',
-  content: '这是中文内容{{num}}'
+  confirm: '确  认',
+  analyze_file_title: '解析.strings文件',
+  input_lang_type: '输入语言类型',
+  analyze_file: '解析文件',
+  export_file_title: '导出.strings文件',
+  select_table: '选择数据表',
+  select_lang_type: '选择语言类型',
+  export_file: '导出文件',
+  loading_table: '正在加载数据表:',
+  analyze_to_table: '正在解析文件至数据表:',
+  analyze_to_table_finish: '解析文件已完成:',
+  export_file_finish: '导出文件已完成:',
+  download_file: '点击下载文件: ',
 }
