@@ -4,6 +4,7 @@ import './index.scss';
 import './locales/i18n'; // 开启国际化，详情请看README.md
 
 function showLoadingOverlay() {
+  document.getElementById('loadingStatus').innerText = '';
   document.getElementById('loadingOverlay').style.display = 'flex';
   document.getElementById('loadEndOverlay').style.display = 'none';
 }
@@ -251,14 +252,13 @@ $(async function() {
     $('#fieldLangSelect').empty();
 
     const fieldOptionsHtml = fieldList.map(field => {
-      if (field.name !== KEY_FIELD_NAME)
-      {
+      if (field.name !== KEY_FIELD_NAME) {
         // console.log('字段:', field.id, field.name);
         return `<option value="${field.id}">${field.name}</option>`;
       }
     }).join('');
 
-    
+
     // $('#fieldLangSelect').append(fieldOptionsHtml).val(fieldList[0].id!);
     $('#fieldLangSelect').append(fieldOptionsHtml);
 
@@ -267,10 +267,10 @@ $(async function() {
     const fieldLangSelect = document.getElementById('fieldLangSelect');
 
     fieldLangSelect.selectedIndex = 0;
-    
+
     // console.log('selectedIndex:', tableSelect.selectedIndex, fieldLangSelect.selectedIndex);
-    
-    if (tableSelect.length  !== 0 && fieldLangSelect.length !== 0) {
+
+    if (tableSelect.length !== 0 && fieldLangSelect.length !== 0) {
       btnExportFile.removeAttribute('disabled');
     } else {
       btnExportFile.setAttribute('disabled', true);
@@ -284,7 +284,7 @@ $(async function() {
     }).join('');
 
     $('#tableSelect').empty();
-    
+
     $('#tableSelect').append(tableOptionsHtml).val(tableSelection.tableId!);
 
     updateFieldList(tableSelection.tableId);
@@ -310,7 +310,7 @@ $(async function() {
     let keyField = null;
     let currProgress = 0;
     let totalProgress = 0;
-    
+
     // 显示加载图标
     showLoadingOverlay();
 
@@ -320,7 +320,7 @@ $(async function() {
     exportFieldName = fieldLangSelect.options[fieldLangSelect.selectedIndex].text;
 
     console.log('tableSelect:', exportTableName, tableId);
-    
+
     //获取数据表
     exportTable = await bitable.base.getTableById(tableId);
 
@@ -348,7 +348,7 @@ $(async function() {
 
       const langCell = await record.getCellByField(langField);
       const langVal = await langCell.getValue();
-      
+
       currProgress++;
       updateLoadingProgress($.t('loading_table'), currProgress, totalProgress);
 
@@ -365,9 +365,9 @@ $(async function() {
     const formattedData: string = Array.from(recordMap.entries()).map(([key, value]) => `"${key}" = "${value}"`).join('\n');
 
     console.log(formattedData);
-    
+
     // 创建Blob对象
-    const file: Blob = new Blob([formattedData], {type: ".strings"});
+    const file: Blob = new Blob([formattedData], { type: ".strings" });
 
     console.log("file:", file);
 
@@ -390,7 +390,7 @@ $(async function() {
     //       window.URL.revokeObjectURL(fileURL);
     //     }, 10000); // 例如，10秒后清理
     // });
-    
+
     // 加载完成
     showConfirmation($.t('export_file_finish'), currProgress, totalProgress);
   });
