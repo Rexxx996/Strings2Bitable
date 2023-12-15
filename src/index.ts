@@ -168,7 +168,7 @@ $(async function() {
       reader.onload = async function(event) {
         const fileContent = event.target.result;
         // 使用正则表达式提取"key"和"value"
-        const keyValuePairs = fileContent.match(/"([^"]+)"\s*=\s*"([^"]+)"/g);
+        const keyValuePairs = fileContent.match(/"([^"]+)"\s*=\s*"((?:\\"|[^"])*)"/g);
 
         console.log('keyValuePairs:', keyValuePairs.length);
 
@@ -178,7 +178,7 @@ $(async function() {
 
         if (keyValuePairs) {
           for (const pair of keyValuePairs) {
-            const matches = pair.match(/"([^"]+)"\s*=\s*"([^"]+)"/);
+            const matches = pair.match(/"([^"]+)"\s*=\s*"((?:\\"|[^"])*)"/);
             if (matches) {
               const key = matches[1];
               const value = matches[2];
@@ -362,7 +362,7 @@ $(async function() {
     }
 
     // 将键值对转换为 "key" = "value" 格式的字符串
-    const formattedData: string = Array.from(recordMap.entries()).map(([key, value]) => `"${key}" = "${value}"`).join('\n');
+    const formattedData: string = Array.from(recordMap.entries()).map(([key, value]) => `"${key}" = "${value}";`).join('\n');
 
     console.log(formattedData);
 
