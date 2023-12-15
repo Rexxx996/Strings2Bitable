@@ -340,7 +340,7 @@ $(async function() {
 
     currProgress = 0;
     totalProgress = recordList.recordIdList.length;
-    updateLoadingProgress($.t('loading_table'), currProgress, totalProgress);
+    updateLoadingProgress($.t('export_to_file'), currProgress, totalProgress);
 
     for (const record of recordList) {
       const keyCell = await record.getCellByField(keyField);
@@ -350,11 +350,11 @@ $(async function() {
       const langVal = await langCell.getValue();
 
       currProgress++;
-      updateLoadingProgress($.t('loading_table'), currProgress, totalProgress);
+      updateLoadingProgress($.t('export_to_file'), currProgress, totalProgress);
 
       // console.log("key lang:", keyVal, langVal);
 
-      if (keyVal) {
+      if (keyVal && langVal) {
         recordMap.set(keyVal[0].text, langVal[0].text);
 
         console.log('get record:', keyVal[0].text, langVal[0].text);

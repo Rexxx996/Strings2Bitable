@@ -9,6 +9,7 @@ export default {
   export_file: 'Export File',
   loading_table: 'Loading Data Table:',
   analyze_to_table: 'Analyzing File to Data Table:',
+  export_to_file: 'Export Data Table to File:',
   analyze_to_table_finish: 'File Analysis Completed:',
   export_file_finish: 'File Export Completed:',
   download_file: 'Click to Download File: ',

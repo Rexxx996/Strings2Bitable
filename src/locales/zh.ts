@@ -9,6 +9,7 @@ export default {
   export_file: '导出文件',
   loading_table: '正在加载数据表:',
   analyze_to_table: '正在解析文件至数据表:',
+  export_to_file: '正在导出数据表至文件:',
   analyze_to_table_finish: '解析文件已完成:',
   export_file_finish: '导出文件已完成:',
   download_file: '点击下载文件: ',
