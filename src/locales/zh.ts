@@ -1,9 +1,9 @@
 export default {
   confirm: '确  认',
-  analyze_file_title: '解析.strings文件',
+  analyze_file_title: '解析strings文件',
   input_lang_type: '输入语言类型',
   analyze_file: '解析文件',
-  export_file_title: '导出.strings文件',
+  export_file_title: '导出strings文件',
   select_table: '选择数据表',
   select_lang_type: '选择语言类型',
   export_file: '导出文件',

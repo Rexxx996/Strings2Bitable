@@ -1,9 +1,9 @@
 export default {
   confirm: 'Confirm',
-  analyze_file_title: 'Analyze .strings File',
+  analyze_file_title: 'Analyze strings File',
   input_lang_type: 'Input Language Type',
   analyze_file: 'Analyze File',
-  export_file_title: 'Export .strings File',
+  export_file_title: 'Export strings File',
   select_table: 'Select Data Table',
   select_lang_type: 'Select Language Type',
   export_file: 'Export File',

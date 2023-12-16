@@ -33,6 +33,10 @@ function showConfirmation(statusText, current, total) {
   document.getElementById('btnConfirm').focus();
 }
 
+function getFileExtension(filename) {
+  return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 1);
+}
+
 $('#btnConfirm').on('click', async function() {
   hideOverlay();
 });
@@ -73,8 +77,6 @@ $(async function() {
       console.log('Input Language:', inputLang.value)
 
       let fileTable = null;
-      let fileTableIndex = null;
-      let result = null;
       let langField = null;
       let keyField = null;
       let currProgress = 0;
@@ -167,8 +169,20 @@ $(async function() {
 
       reader.onload = async function(event) {
         const fileContent = event.target.result;
-        // 使用正则表达式提取"key"和"value"
-        const keyValuePairs = fileContent.match(/"([^"]+)"\s*=\s*"((?:\\"|[^"])*)"/g);
+        const isXmlType = fileContent.startsWith('<?xml');
+        let keyValuePairs = null;
+        let key = null;
+        let value = null;
+
+        if (isXmlType) {
+          // 解析 XML 文件
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(fileContent, "application/xml");
+          keyValuePairs = xmlDoc.getElementsByTagName("string");
+        } else {
+          // 使用正则表达式提取"key"和"value"
+          keyValuePairs = fileContent.match(/"([^"]+)"\s*=\s*"((?:\\"|[^"])*)"/g);
+        }
 
         console.log('keyValuePairs:', keyValuePairs.length);
 
@@ -178,42 +192,48 @@ $(async function() {
 
         if (keyValuePairs) {
           for (const pair of keyValuePairs) {
-            const matches = pair.match(/"([^"]+)"\s*=\s*"((?:\\"|[^"])*)"/);
-            if (matches) {
-              const key = matches[1];
-              const value = matches[2];
 
-              currProgress++;
-              updateLoadingProgress($.t('analyze_to_table'), currProgress, totalProgress);
-
-              if (recordMap.has(key)) {
-                console.log('setCellValue:', langField.id, recordMap.get(key), value);
-
-                const res = await fileTable.setCellValue(langField.id, recordMap.get(key), value)
-                console.log('res:', res);
+            if (isXmlType) {
+              key = pair.getAttribute("name");
+              value = pair.textContent;
+            } else {
+              const matches = pair.match(/"([^"]+)"\s*=\s*"((?:\\"|[^"])*)"/);
+              if (matches) {
+                key = matches[1];
+                value = matches[2];
               }
-              else {
-                // const newKeyCell = await keyField.createCell(key);
-                // const newLangCell = await langField.createCell(value);
-
-                // const recordId = await fileTable.addRecord([[newKeyCell],[newLangCell]]);
-
-                // recordMap.set(key, recordId);
-
-                // console.log('New recordId:', recordId);
-
-                const res = await fileTable.addRecord({
-                  fields: {
-                    [keyField.id]: key,
-                    [langField.id]: value,
-                  }
-                });
-                console.log('Add record:', res);
-              }
-
-              console.log('Key:', key);
-              console.log('Value:', value);
             }
+
+            currProgress++;
+            updateLoadingProgress($.t('analyze_to_table'), currProgress, totalProgress);
+
+            if (recordMap.has(key)) {
+              console.log('setCellValue:', langField.id, recordMap.get(key), value);
+
+              const res = await fileTable.setCellValue(langField.id, recordMap.get(key), value)
+              console.log('res:', res);
+            }
+            else {
+              // const newKeyCell = await keyField.createCell(key);
+              // const newLangCell = await langField.createCell(value);
+
+              // const recordId = await fileTable.addRecord([[newKeyCell],[newLangCell]]);
+
+              // recordMap.set(key, recordId);
+
+              // console.log('New recordId:', recordId);
+
+              const res = await fileTable.addRecord({
+                fields: {
+                  [keyField.id]: key,
+                  [langField.id]: value,
+                }
+              });
+              console.log('Add record:', res);
+            }
+
+            console.log('Key:', key);
+            console.log('Value:', value);
           }
         }
 
@@ -305,7 +325,7 @@ $(async function() {
     let exportTable = null;
     let exportTableName = null;
     let exportFieldName = null;
-    let result = null;
+    let fileExtension = null;
     let langField = null;
     let keyField = null;
     let currProgress = 0;
@@ -318,8 +338,11 @@ $(async function() {
 
     exportTableName = tableSelect.options[tableSelect.selectedIndex].text;
     exportFieldName = fieldLangSelect.options[fieldLangSelect.selectedIndex].text;
+    fileExtension = getFileExtension(exportTableName);
 
     console.log('tableSelect:', exportTableName, tableId);
+
+    console.log('fileExtension:', fileExtension);
 
     //获取数据表
     exportTable = await bitable.base.getTableById(tableId);
@@ -361,15 +384,26 @@ $(async function() {
       }
     }
 
-    // 将键值对转换为 "key" = "value" 格式的字符串
-    const formattedData: string = Array.from(recordMap.entries()).map(([key, value]) => `"${key}" = "${value}";`).join('\n');
+    let formattedData = "";
+
+    if (fileExtension === ".strings") {
+      // 将键值对转换为 "key" = "value" 格式的字符串
+      formattedData = Array.from(recordMap.entries()).map(([key, value]) => `"${key}" = "${value}";`).join('\n');
+
+      console.log('format .strings data.');
+    } else if (fileExtension === ".xml") {
+      formattedData = `<?xml version="1.0" encoding="utf-8"?>\n<resources>\n` +
+        Array.from(recordMap.entries()).map(([key, value]) => `   <string name="${key}">${value}</string>`).join('\n') +
+        `\n</resources>`;
+      console.log('format .xml data.');
+    }
 
     console.log(formattedData);
 
     // 创建Blob对象
-    const file: Blob = new Blob([formattedData], { type: ".strings" });
+    const file: Blob = new Blob([formattedData], { type: fileExtension });
 
-    console.log("file:", file);
+    //console.log("file:", file);
 
     // 创建URL
     const fileURL: string = URL.createObjectURL(file);
