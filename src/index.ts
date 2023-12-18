@@ -45,8 +45,6 @@ $(async function() {
 
   const KEY_FIELD_NAME = "key";
 
-  // console.log($.t('title')) // '这是中文标题'
-
   // 监听选择文件
   const inputFile = document.getElementById('inputFile');
   const inputLang = document.getElementById('inputLang');
@@ -70,6 +68,8 @@ $(async function() {
     // 显示加载图标
     showLoadingOverlay();
 
+    console.time("解析文件时间");
+    
     const file = inputFile.files[0];
     if (file) {
 
@@ -142,9 +142,11 @@ $(async function() {
       updateLoadingProgress($.t('loading_table'), currProgress, totalProgress);
 
       for (const record of recordList) {
-        const keyCell = await record.getCellByField(keyField);
-        const keyVal = await keyCell.getValue();
+        // const keyCell = await record.getCellByField(keyField);
+        // const keyVal = await keyCell.getValue();
 
+        const keyVal = await fileTable.getCellValue(keyField.id, record.id);
+ 
         currProgress++;
         updateLoadingProgress($.t('loading_table'), currProgress, totalProgress);
 
@@ -169,19 +171,27 @@ $(async function() {
 
       reader.onload = async function(event) {
         const fileContent = event.target.result;
-        const isXmlType = fileContent.startsWith('<?xml');
         let keyValuePairs = null;
         let key = null;
         let value = null;
+        let isXmlType = false;
+        let recordsToBeAdded = [];
+        let recordsToBeUpdate = [];
 
-        if (isXmlType) {
+        const fileExtension = file.name.slice((file.name.lastIndexOf(".") - 1 >>> 0) + 1);
+        console.log('fileExtension:', fileExtension);
+        if (fileExtension === '.xml') {
           // 解析 XML 文件
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(fileContent, "application/xml");
           keyValuePairs = xmlDoc.getElementsByTagName("string");
-        } else {
+
+          isXmlType = true;
+        } else if (fileExtension === '.strings') {
           // 使用正则表达式提取"key"和"value"
           keyValuePairs = fileContent.match(/"([^"]+)"\s*=\s*"((?:\\"|[^"])*)"/g);
+
+          isXmlType = false;
         }
 
         console.log('keyValuePairs:', keyValuePairs.length);
@@ -204,18 +214,38 @@ $(async function() {
               }
             }
 
-            currProgress++;
-            updateLoadingProgress($.t('analyze_to_table'), currProgress, totalProgress);
+            // currProgress++;
+            // updateLoadingProgress($.t('analyze_to_table'), currProgress, totalProgress);
 
             if (recordMap.has(key)) {
-              console.log('setCellValue:', langField.id, recordMap.get(key), value);
+              // console.log('setCellValue:', langField.id, recordMap.get(key), value);
 
-              const res = await fileTable.setCellValue(langField.id, recordMap.get(key), value)
-              console.log('res:', res);
+              // const res = await fileTable.setCellValue(langField.id, recordMap.get(key), value)
+              // console.log('res:', res);
+
+              let record = {
+                recordId: recordMap.get(key),
+                fields: {
+                  [langField.id]: value,
+                }
+              };
+              recordsToBeUpdate.push(record);
             }
             else {
               // const newKeyCell = await keyField.createCell(key);
               // const newLangCell = await langField.createCell(value);
+
+              // keyCells.push([newKeyCell]);
+              // langCells.push([newLangCell]);
+              // console.log('langCells:', langCells);
+
+              let record = {
+                fields: {
+                  [keyField.id]: key,
+                  [langField.id]: value,
+                }
+              };
+              recordsToBeAdded.push(record);
 
               // const recordId = await fileTable.addRecord([[newKeyCell],[newLangCell]]);
 
@@ -223,20 +253,65 @@ $(async function() {
 
               // console.log('New recordId:', recordId);
 
-              const res = await fileTable.addRecord({
-                fields: {
-                  [keyField.id]: key,
-                  [langField.id]: value,
-                }
-              });
-              console.log('Add record:', res);
+              // const res = await fileTable.addRecord({
+              //   fields: {
+              //     [keyField.id]: key,
+              //     [langField.id]: value,
+              //   }
+              // });
+              // console.log('Add record:', res);
             }
 
             console.log('Key:', key);
             console.log('Value:', value);
           }
+
+          console.log('recordsToBeAdded:', recordsToBeAdded.length);
+          console.log('recordsToBeUpdate:', recordsToBeUpdate.length);
+
+          // 设置每批次最大记录数
+          const MAX_RECORDS_PER_BATCH = 1000;
+          // 准备存储所有添加成功的记录ID
+          let allAddedRecordIds = [];
+
+          // 使用循环来分批次更新记录
+          for (let i = 0; i < recordsToBeUpdate.length; i += MAX_RECORDS_PER_BATCH) {
+            // 创建一个批次的记录数组，确保不会超出数组界限
+            let batchRecords = recordsToBeUpdate.slice(i, i + MAX_RECORDS_PER_BATCH);
+
+            currProgress += batchRecords.length;
+            updateLoadingProgress($.t('analyze_to_table'), currProgress, totalProgress);
+
+            // 使用 addRecords 方法更新当前批次的记录
+            const res = await fileTable.setRecords(batchRecords);
+
+            // 将更新成功的记录ID存储起来
+            // allAddedRecordIds.push(...res);
+          }
+
+          // 使用循环来分批次添加记录
+          for (let i = 0; i < recordsToBeAdded.length; i += MAX_RECORDS_PER_BATCH) {
+            // 创建一个批次的记录数组，确保不会超出数组界限
+            let batchRecords = recordsToBeAdded.slice(i, i + MAX_RECORDS_PER_BATCH);
+
+            currProgress += batchRecords.length;
+            updateLoadingProgress($.t('analyze_to_table'), currProgress, totalProgress);
+
+            // 使用 addRecords 方法添加当前批次的记录
+            const res = await fileTable.addRecords(batchRecords);
+ 
+            // 将添加成功的记录ID存储起来
+            // allAddedRecordIds.push(...res);
+          }
+
+          // const recordIds = await fileTable.addRecords(records);
+          // console.log('recordIds 1:', recordIds);
+          // const recordIds = await fileTable.addRecords(records);
+          // console.log('recordIds 1:', recordIds);
         }
 
+        console.timeEnd("解析文件时间");
+        
         // 加载完成
         showConfirmation($.t('analyze_to_table_finish'), currProgress, totalProgress);
 
@@ -355,6 +430,8 @@ $(async function() {
     langField = await exportTable.getFieldByName<ITextFieldConfig>(exportFieldName);
     console.log('Get language field :', langField);
 
+    console.time("导出文件时间");
+    
     // 创建一个Map对象(key, value, record id)来存储Record
     const recordMap = new Map<string, string>();
     const recordList = await exportTable.getRecordList();
@@ -366,11 +443,14 @@ $(async function() {
     updateLoadingProgress($.t('export_to_file'), currProgress, totalProgress);
 
     for (const record of recordList) {
-      const keyCell = await record.getCellByField(keyField);
-      const keyVal = await keyCell.getValue();
+      // const keyCell = await record.getCellByField(keyField);
+      // const keyVal = await keyCell.getValue();
 
-      const langCell = await record.getCellByField(langField);
-      const langVal = await langCell.getValue();
+      // const langCell = await record.getCellByField(langField);
+      // const langVal = await langCell.getValue();
+
+      const keyVal = await exportTable.getCellValue(keyField.id, record.id);
+      const langVal = await exportTable.getCellValue(langField.id, record.id);
 
       currProgress++;
       updateLoadingProgress($.t('export_to_file'), currProgress, totalProgress);
@@ -416,6 +496,7 @@ $(async function() {
     a.download = exportTableName;
     a.innerText = $.t('download_file') + exportTableName + " : " + exportFieldName;
 
+    console.timeEnd("导出文件时间");
     // 设置点击事件处理器
     // a.addEventListener('click', () => {
     //     // 设置定时器以清理资源
