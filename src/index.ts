@@ -69,7 +69,7 @@ $(async function() {
     showLoadingOverlay();
 
     console.time("解析文件时间");
-    
+
     const file = inputFile.files[0];
     if (file) {
 
@@ -146,7 +146,7 @@ $(async function() {
         // const keyVal = await keyCell.getValue();
 
         const keyVal = await fileTable.getCellValue(keyField.id, record.id);
- 
+
         currProgress++;
         updateLoadingProgress($.t('loading_table'), currProgress, totalProgress);
 
@@ -165,6 +165,14 @@ $(async function() {
         //   // 删除空行
         //   await fileTable.deleteRecord(record);
         // }
+      }
+
+      // 替换实体字符<>&为的实体名称
+      function convertToEntities(str) {
+        return str.replace(/&/g, "&amp;") //
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        // .replace(/@/g, "&commat;");
       }
 
       const reader = new FileReader();
@@ -186,6 +194,9 @@ $(async function() {
           const xmlDoc = parser.parseFromString(fileContent, "application/xml");
           keyValuePairs = xmlDoc.getElementsByTagName("string");
 
+          console.log('xmlDoc:', xmlDoc);
+          // console.log('&lt;font color=#ff0000&gt;New Version %s&lt;/font&gt;');
+
           isXmlType = true;
         } else if (fileExtension === '.strings') {
           // 使用正则表达式提取"key"和"value"
@@ -206,6 +217,8 @@ $(async function() {
             if (isXmlType) {
               key = pair.getAttribute("name");
               value = pair.textContent;
+              value = convertToEntities(value);
+              // console.log('strings:', value);
             } else {
               const matches = pair.match(/"([^"]+)"\s*=\s*"((?:\\"|[^"])*)"/);
               if (matches) {
@@ -272,7 +285,7 @@ $(async function() {
           // 设置每批次最大记录数
           const MAX_RECORDS_PER_BATCH = 1000;
           // 准备存储所有添加成功的记录ID
-          let allAddedRecordIds = [];
+          // let allAddedRecordIds = [];
 
           // 使用循环来分批次更新记录
           for (let i = 0; i < recordsToBeUpdate.length; i += MAX_RECORDS_PER_BATCH) {
@@ -299,7 +312,7 @@ $(async function() {
 
             // 使用 addRecords 方法添加当前批次的记录
             const res = await fileTable.addRecords(batchRecords);
- 
+
             // 将添加成功的记录ID存储起来
             // allAddedRecordIds.push(...res);
           }
@@ -311,7 +324,7 @@ $(async function() {
         }
 
         console.timeEnd("解析文件时间");
-        
+
         // 加载完成
         showConfirmation($.t('analyze_to_table_finish'), currProgress, totalProgress);
 
@@ -431,7 +444,7 @@ $(async function() {
     console.log('Get language field :', langField);
 
     console.time("导出文件时间");
-    
+
     // 创建一个Map对象(key, value, record id)来存储Record
     const recordMap = new Map<string, string>();
     const recordList = await exportTable.getRecordList();
